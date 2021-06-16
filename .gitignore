@@ -1,0 +1,21 @@
+*.pyc
+*.sqlite3
+# *.db
+# *~
+# .*
+# *.py.bak
+
+/venv/
+/.idea/
+# /site/
+# /htmlcov/
+# /coverage/
+# /build/
+# /dist/
+# /*.egg-info/
+# MANIFEST
+# coverage.*
+
+# !.github
+# !.gitignore
+# !.pre-commit-config.yaml
