@@ -105,7 +105,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Seoul'
 
 USE_I18N = True
 
@@ -118,3 +118,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# APPEND_SLASH = True -> url이 /로 끝나지 않고 모든 URLconf와 매칭되지 않는 경우, 끝에 /를 붙힌 후 리다이렉 함. (데이터 분실 위험 존재)
+# CommonMiddleware라는 middleware가 설치되어있을 때만 사용된다 함.
+APPEND_SLASH = False
