@@ -90,6 +90,15 @@ WSGI_APPLICATION = 'app.wsgi.application'
 # 설정 값에 대한 자세한 정보는 https://docs.djangoproject.com/en/2.2/ref/settings/#databases에서 확인할 수 있다.
 DATABASES = {
     'default': {
+        'NAME': env('SMS_FOR_DJANGO_POSTGRESQL_NAME'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'USER': env('SMS_FOR_DJANGO_POSTGRESQL_USER'),
+        'PASSWORD': env('SMS_FOR_DJANGO_POSTGRESQL_PASSWORD'),
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
+    },
+
+    'sqlite3': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
