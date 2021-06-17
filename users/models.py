@@ -51,3 +51,15 @@ class Students(models.Model):
 
     # path value in profile uri of student profile
     profile_uri_path = models.TextField(unique=True)
+
+    def save(self, *args, **kwargs):
+        """overriding save method used when create or update instance with Students model"""
+
+        # initialize self.student_number if is None or empty tuple
+        if self.student_number is None or self.student_number == ():
+            self.student_number = None, None, None
+
+        if isinstance(self.student_number, tuple):
+            self.student_number = self.student_number + (None, ) * (3 - len(self.student_number))
+
+        return super(Students, self).save(*args, **kwargs)
