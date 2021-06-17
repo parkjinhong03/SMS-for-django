@@ -24,3 +24,13 @@ class StudentBasicSignupRequest:
         phone_number = serializers.CharField(required=True, validators=[
             validators.RegexValidator(regex='^\\d{3}\\d{3,4}\\d{4}$')
         ])
+
+        def validate(self, attrs):
+            """check fields value about student_number if that are all set or not"""
+
+            if len(set([attr in attrs for attr in ('grade', 'group', 'number')])) != 1:
+                raise serializers.ValidationError({
+                    'student_number': 'grade, group, and number fields cannot be optionally set',
+                })
+
+            return attrs
