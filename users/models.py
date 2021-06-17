@@ -82,7 +82,7 @@ class Students(models.Model):
         """overriding save method used when create or update instance with Students model"""
 
         # initialize self.student_number if is None or empty tuple
-        if self.student_number is None or self.student_number == ():
+        if self.student_number is None or self.student_number == () or not isinstance(self.student_number, tuple):
             self.student_number = None, None, None
 
         if isinstance(self.student_number, tuple):
