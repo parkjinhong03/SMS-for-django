@@ -1,3 +1,4 @@
+from PIL import Image
 from django.core import validators
 from rest_framework import serializers
 
@@ -24,6 +25,7 @@ class StudentBasicSignupRequest:
         phone_number = serializers.CharField(required=True, validators=[
             validators.RegexValidator(regex='^\\d{3}\\d{3,4}\\d{4}$')
         ])
+        profile = serializers.ImageField(required=False)
 
         def validate(self, attrs):
             """check fields value about student_number if that are all set or not"""
