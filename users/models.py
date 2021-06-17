@@ -3,36 +3,13 @@ from django.core import validators
 from postgres_composite_types import CompositeType
 
 
-class StudentNumber(CompositeType):
-    """custom composite type for postgresql field having grade, group, number value
-
-    (SQL in postgresql)
-    CREATE TYPE "student_number" AS ("grade" smallint, "group" smallint, "number" smallint);
-    """
-
-    # grade(학년) value of student number type (postgresql -> "grade" smallint)
-    grade = models.SmallIntegerField(null=True, validators=[
-        validators.MinValueValidator(limit_value=1), validators.MaxValueValidator(limit_value=3),  # 1~3 between value
-    ])
-    # group(반) value of student number type (postgresql -> "group" smallint)
-    group = models.SmallIntegerField(null=True, validators=[
-        validators.MinValueValidator(limit_value=1), validators.MaxValueValidator(limit_value=4),  # 1~4 between value
-    ])
-    # number(번호) value of student number type (postgresql -> "number" smallint)
-    number = models.SmallIntegerField(null=True, validators=[
-        validators.MinValueValidator(limit_value=1), validators.MaxValueValidator(limit_value=21),  # 1~21 between value
-    ])
-
-    class Meta:
-        # set type name of StudentNumber in postgresql
-        db_type = 'student_number'
-
-
 class Students(models.Model):
     """Students model having account value(uuid, id, pw) and student inform(number, phone, etc ...)
 
     (SQL in postgresql)
     CREATE TABLE "users_students" (
+        "created_at"       timestamp with time zone DEFAULT NOT NULL
+        "updated_at"       timestamp with time zone DEFAULT NOT NULL
         "uuid"             varchar(20) NOT NULL PRIMARY KEY,
         "student_id"       varchar(20) NOT NULL UNIQUE,
         "student_pw"       text NOT NULL,
@@ -42,6 +19,36 @@ class Students(models.Model):
         "profile_uri_path" text NOT NULL UNIQUE
     );
     """
+
+    class StudentNumber(CompositeType):
+        """custom composite type for postgresql field having grade, group, number value
+
+        (SQL in postgresql)
+        CREATE TYPE "student_number" AS ("grade" smallint, "group" smallint, "number" smallint);
+        """
+
+        # grade(학년) value of student number type (postgresql -> "grade" smallint)
+        grade = models.SmallIntegerField(null=True, validators=[
+            validators.MinValueValidator(limit_value=1), validators.MaxValueValidator(limit_value=3),  # between 1~3
+        ])
+        # group(반) value of student number type (postgresql -> "group" smallint)
+        group = models.SmallIntegerField(null=True, validators=[
+            validators.MinValueValidator(limit_value=1), validators.MaxValueValidator(limit_value=4),  # between 1~4
+        ])
+        # number(번호) value of student number type (postgresql -> "number" smallint)
+        number = models.SmallIntegerField(null=True, validators=[
+            validators.MinValueValidator(limit_value=1), validators.MaxValueValidator(limit_value=21),  # between 1~21
+        ])
+
+        class Meta:
+            # set type name of StudentNumber in postgresql
+            db_type = 'student_number'
+
+    # create time which is set current time when add this instance
+    created_at = models.DateTimeField(auto_now_add=True, blank=True)
+
+    # update time which is set current time when change this instance
+    updated_at = models.DateTimeField(auto_now=True, blank=True)
 
     # primary key of Students model (postgresql -> "uuid" varchar(20) NOT NULL PRIMARY KEY))
     uuid = models.CharField(primary_key=True, max_length=20, validators=[
