@@ -75,6 +75,9 @@ class Students(models.Model):
     # path value in profile uri of student profile (postgresql -> text NOT NULL UNIQUE)
     profile_uri_path = models.TextField(unique=True)
 
+    class Meta:
+        ordering = ['uuid']
+
     def save(self, *args, **kwargs):
         """overriding save method used when create or update instance with Students model"""
 
