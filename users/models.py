@@ -89,3 +89,9 @@ class Students(models.Model):
             self.student_number = self.student_number + (None, ) * (3 - len(self.student_number))
 
         return super(Students, self).save(*args, **kwargs)
+
+    @classmethod
+    def generate_random_uuid(cls):
+        rand = str(random.randint(0, 999999999999))
+        uuid_number = '0' * (12 - len(rand)) + rand
+        return f'student-{uuid_number}'
