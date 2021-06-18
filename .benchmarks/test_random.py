@@ -1,10 +1,22 @@
 import random
 
 
-def test_generate_random_int_without_range(benchmark):
+def test_generate_random_int_without_loop_with_list(benchmark):
     def func():
         rand = str(random.randint(0, 999999999999))
-        return ''.join(['0' for _ in range(12 - len(rand))]) + rand
+        result = ''.join(['0' for _ in range(12 - len(rand))]) + rand
+        assert len(result) == 12
+        return result
+
+    benchmark(func)
+
+
+def test_generate_random_int_without_loop_with_string_add(benchmark):
+    def func():
+        rand = str(random.randint(0, 999999999999))
+        result = '0' * (12 - len(rand)) + rand
+        assert len(result) == 12
+        return result
 
     benchmark(func)
 
