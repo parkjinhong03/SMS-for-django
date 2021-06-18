@@ -1,3 +1,4 @@
+import random
 from django.db import models
 from django.core import validators
 from postgres_composite_types import CompositeType
@@ -82,11 +83,14 @@ class Students(models.Model):
         """overriding save method used when create or update instance with Students model"""
 
         # initialize self.student_number if is None or empty tuple
-        if self.student_number is None or self.student_number == () or not isinstance(self.student_number, tuple):
+        if (not self.student_number) or (not isinstance(self.student_number, tuple)):
             self.student_number = None, None, None
 
         if isinstance(self.student_number, tuple):
             self.student_number = self.student_number + (None, ) * (3 - len(self.student_number))
+
+        while (not self.uuid) or (len(Students.objects.filter(uuid=self.uuid)) >= 1):
+            self.uuid = self.uuid if self.uuid else Students.generate_random_uuid()
 
         return super(Students, self).save(*args, **kwargs)
 
