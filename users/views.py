@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from abc import ABCMeta
 from rest_framework import generics, mixins
 from . import requests
 from .models import Students
@@ -6,8 +6,16 @@ from .serializers import StudentsSerializer
 from app.responses import Response
 
 
-class StudentBasicSignup(BaseView,
-                         mixins.CreateModelMixin,
+class HashingCodec(metaclass=ABCMeta):
+    """interface to hashing_codec dependency using in View initialize"""
+    @classmethod
+    def __subclasshook__(cls, subclass):
+        return (hasattr(subclass, 'hashpw') and callable(subclass.hashpw) or
+                hasattr(subclass, 'checkpw') and callable(subclass.checkpw) or
+                NotImplemented)
+
+
+class StudentBasicSignup(mixins.CreateModelMixin,
                          generics.GenericAPIView):
     """handle basic sign up of student with create generic api"""
     queryset = Students.objects.all()
