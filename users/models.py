@@ -89,13 +89,22 @@ class Students(models.Model):
         if isinstance(self.student_number, tuple):
             self.student_number = self.student_number + (None, ) * (3 - len(self.student_number))
 
-        while (not self.uuid) or (len(Students.objects.filter(uuid=self.uuid)) >= 1):
-            self.uuid = self.uuid if self.uuid else Students.generate_random_uuid()
+        self.uuid = self.uuid if self.uuid else Students.get_available_uuid()
 
         return super(Students, self).save(*args, **kwargs)
 
     @classmethod
-    def generate_random_uuid(cls):
+    def get_available_uuid(cls):
+        while Students.objects.filter(uuid=(uuid := cls.generate_random_uuid())):
+            continue
+        return uuid
+
+    @classmethod
+    def generate_random_uuid(cls) -> str:
         rand = str(random.randint(0, 999999999999))
         uuid_number = '0' * (12 - len(rand)) + rand
         return f'student-{uuid_number}'
+
+    @classmethod
+    def get_profile_uri_path(cls, uuid: str) -> str:
+        return f'profiles/students/uuid/{uuid}'
