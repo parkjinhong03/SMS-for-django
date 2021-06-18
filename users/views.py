@@ -21,6 +21,18 @@ class StudentBasicSignup(mixins.CreateModelMixin,
     queryset = Students.objects.all()
     serializer_class = StudentsSerializer
 
+    @classmethod
+    def as_view(cls, hashing_codec, **initkwargs):
+        for dependency, interface in (
+                (hashing_codec, HashingCodec),
+        ):
+            if not isinstance(dependency, interface):
+                raise DependencyNotImplementedError(dependency, interface)
+
+        cls.hashing_codec = hashing_codec
+
+        return super(StudentBasicSignup, cls).as_view(**initkwargs)
+
     def post(self, request, *args, **kwargs):
         req_serializer = requests.StudentBasicSignupRequest.POST(data=request.data)
         if not req_serializer.is_valid():
