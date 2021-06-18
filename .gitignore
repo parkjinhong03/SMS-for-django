@@ -7,6 +7,7 @@
 
 /venv/
 /.idea/
+/.pytest_cache/
 # /site/
 # /htmlcov/
 # /coverage/
