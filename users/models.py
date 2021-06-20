@@ -94,7 +94,7 @@ class Students(models.Model):
         return super(Students, self).save(*args, **kwargs)
 
     @classmethod
-    def get_available_uuid(cls):
+    def get_available_uuid(cls) -> str:
         while Students.objects.filter(uuid=(uuid := cls.generate_random_uuid())):
             continue
         return uuid
