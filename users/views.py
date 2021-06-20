@@ -1,5 +1,9 @@
 from abc import ABCMeta
+from typing import List, Dict
+
 from rest_framework import generics, mixins
+from rest_framework.exceptions import ErrorDetail
+
 from . import requests
 from .models import Students
 from .serializers import StudentsSerializer
@@ -48,6 +52,23 @@ class StudentBasicSignup(mixins.CreateModelMixin,
 
         if 'profile' in request.FILES and (profile := request.FILES['profile']):
             data['profile_uri_path'] = Students.get_profile_uri_path(data['uuid'])
+
+        (student_serializer := StudentsSerializer(data=data)).is_valid()
+        validate_errors = contain_code_to_error_string(student_serializer.errors)
+
+        for error in validate_errors.pop('student_id', default=()):
+            if error.code == 'unique1':
+                return Response(status=409, code=-101, msg='duplicate student id')
+            else:
+                raise UnexpectedValidateError('student_id', validate_errors)
+
+        for error in validate_errors.pop('phone_number', default=()):
+            if error.code == 'unique1':
+                return Response(status=409, code=-101, msg='duplicate phone number')
+            else:
+                raise UnexpectedValidateError('phone_number', validate_errors)
+
+        return Response(status=201, msg="succeed to create new student with basic sign up")
 
 
 def contain_code_to_error_string(detail_errors: Dict[str, List[ErrorDetail]]) -> Dict[str, List[ErrorDetail]]:
