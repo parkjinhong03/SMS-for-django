@@ -4,10 +4,14 @@ from . import requests
 from .models import Students
 from .serializers import StudentsSerializer
 from app.responses import Response
+from app.exceptions import (
+    DependencyNotImplementedError, UnexpectedValidateError, RequestInvalidError
+)
 
 
 class HashingCodec(metaclass=ABCMeta):
     """interface to hashing_codec dependency using in View initialize"""
+
     @classmethod
     def __subclasshook__(cls, subclass):
         return (hasattr(subclass, 'hashpw') and callable(subclass.hashpw) or
@@ -36,5 +40,11 @@ class StudentBasicSignup(mixins.CreateModelMixin,
     def post(self, request, *args, **kwargs):
         req_serializer = requests.StudentBasicSignupRequest.POST(data=request.data)
         if not req_serializer.is_valid():
-            return Response(status=400, msg=req_serializer.errors)
-        return Response(status=201)
+            raise RequestInvalidError(req_serializer.errors)
+
+        data = req_serializer.data
+        data['uuid'] = Students.get_available_uuid()
+        data['student_pw'] = self.hashing_codec.hashpw(data['student_pw'])
+
+        if 'profile' in request.FILES and (profile := request.FILES['profile']):
+            data['profile_uri_path'] = Students.get_profile_uri_path(data['uuid'])
