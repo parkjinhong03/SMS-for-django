@@ -13,7 +13,7 @@ def custom_http_exception_handler(exc, context) -> Response:
     response = exception_handler(exc, context)
 
     if response is None and isinstance(exc, CustomHttpException):
-        response = Response(exc.status, exc.code, exc.__str__())
+        response = Response(exc.status, exc.code, exc.get_message())
 
     return response
 
