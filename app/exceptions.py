@@ -1,6 +1,8 @@
 from typing import List, Dict, Any
 from rest_framework.views import exception_handler
-from rest_framework.status import HTTP_500_INTERNAL_SERVER_ERROR
+from rest_framework.status import (
+    HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR
+)
 from rest_framework.exceptions import ErrorDetail
 from app.responses import Response
 
@@ -26,6 +28,21 @@ class CustomHttpException(Exception):
 
     def get_message(self) -> Any:
         raise NotImplementedError
+
+
+class RequestInvalidError(CustomHttpException):
+    """represent exception about request invalid error inheriting CustomHttpException"""
+
+    def __init__(self, validate_errors: Dict[str, List[ErrorDetail]],
+                 status: int = HTTP_400_BAD_REQUEST, code: int = 0):
+        super(RequestInvalidError, self).__init__(status, code)
+        self.validate_errors = validate_errors
+
+    def get_message(self) -> Any:
+        return {
+            'detail': 'request data is invalid',
+            **self.validate_errors
+        }
 
 
 class UnexpectedValidateError(CustomHttpException):
