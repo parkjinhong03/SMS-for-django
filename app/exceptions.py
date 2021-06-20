@@ -1,4 +1,22 @@
+from typing import List, Dict, Any
 from rest_framework.views import exception_handler
+from rest_framework.status import HTTP_500_INTERNAL_SERVER_ERROR
+from rest_framework.exceptions import ErrorDetail
+from app.responses import Response
+
+
+def custom_http_exception_handler(exc, context) -> Response:
+    """handling custom exception as well as django standard error response (Ex, CustomHttpException)"""
+
+    # Call REST framework's default exception handler first,
+    # to get the standard error response.
+    response = exception_handler(exc, context)
+
+    if response is None and isinstance(exc, CustomHttpException):
+        response = Response(exc.status, exc.code, exc.__str__())
+
+    return response
+
 
 class CustomHttpException(Exception):
     """base exception to customize http error which contains status and code inform"""
