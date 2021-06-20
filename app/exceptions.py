@@ -9,6 +9,22 @@ class CustomHttpException(Exception):
     def get_message(self) -> Any:
         raise NotImplementedError
 
+
+class UnexpectedValidateError(CustomHttpException):
+    """represent exception about unexpected validate error inheriting CustomHttpException"""
+
+    def __init__(self, invalid_field: str, validate_errors: Dict[str, List[ErrorDetail]],
+                 status: int = HTTP_500_INTERNAL_SERVER_ERROR, code: int = 0):
+        super(UnexpectedValidateError, self).__init__(status, code)
+        self.invalid_field, self.validate_errors = invalid_field, validate_errors
+
+    def get_message(self) -> Any:
+        return {
+            'detail': f'unexpected validate error of {self.invalid_field}',
+            **self.validate_errors
+        }
+
+
 class DependencyNotImplementedError(Exception):
     """dependency not implemented error which can be raise when DI occurs"""
 
