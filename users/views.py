@@ -48,3 +48,10 @@ class StudentBasicSignup(mixins.CreateModelMixin,
 
         if 'profile' in request.FILES and (profile := request.FILES['profile']):
             data['profile_uri_path'] = Students.get_profile_uri_path(data['uuid'])
+
+
+def contain_code_to_error_string(detail_errors: Dict[str, List[ErrorDetail]]) -> Dict[str, List[ErrorDetail]]:
+    for key, errors in detail_errors.items():
+        for i, error in enumerate(errors):
+            detail_errors[key][i] = ErrorDetail(f'{error} (code: {error.code})', error.code)
+    return detail_errors
