@@ -35,6 +35,11 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+REST_FRAMEWORK = {
+    # set EXCEPTION_HANDLER which is executed when exception is raised while handling request
+    'EXCEPTION_HANDLER': 'app.exceptions.custom_http_exception_handler'
+}
+
 # Django에서 사용하기 위해 설치된 모든 어플리케이션들의 목록
 # python3 manage.py migrate 실행 시, 아래의 리스트로부터 필요한 db table를 조회해온 후 생성한다.
 INSTALLED_APPS = [
