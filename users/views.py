@@ -10,7 +10,7 @@ from rest_framework.request import Request
 from . import requests, interfaces
 from .models import Students
 from .serializers import StudentsSerializer
-from .permissions import IsAuthenticated
+from .permissions import IsAuthenticated, IsUUIDOwner
 from app.responses import Response
 from app.exceptions import (
     DependencyNotImplementedError, UnexpectedValidateError, RequestInvalidError, UnexpectedError
@@ -146,7 +146,7 @@ class StudentDetail(BaseView,
     """handle about student detail logic (ex, get & update & delete ...)"""
 
     dependency_interface = (interfaces.JWTCodec, )
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsUUIDOwner]
 
     @classmethod
     def as_view(cls, jwt_codec, **initkwargs):
@@ -157,9 +157,6 @@ class StudentDetail(BaseView,
         return super(StudentDetail, cls).as_view(**initkwargs)
 
     def get(self, request: Request, student_uuid: str, *args, **kwargs):
-        if request.token_payload['uuid'] != student_uuid:
-            return Response(status=403, msg='you cannot access this resource with that token')
-
         try:
             student = Students.objects.get(uuid=student_uuid)
         except Students.DoesNotExist:
@@ -179,7 +176,7 @@ class StudentDetailPassword(BaseView,
     """handle about student detail password logic"""
 
     dependency_interface = (interfaces.HashingCodec, interfaces.JWTCodec)
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsUUIDOwner]
 
     @classmethod
     def as_view(cls, hashing_codec, jwt_codec, **initkwargs):
