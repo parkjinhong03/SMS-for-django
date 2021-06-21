@@ -4,8 +4,10 @@ from typing import List, Dict
 from django.db import transaction
 from rest_framework import generics, mixins
 from rest_framework.exceptions import ErrorDetail
+from rest_framework.views import APIView
+from rest_framework.request import Request
 
-from . import requests
+from . import requests, interfaces
 from .models import Students
 from .serializers import StudentsSerializer
 from app.responses import Response
@@ -14,39 +16,28 @@ from app.exceptions import (
 )
 
 
-class HashingCodec(metaclass=ABCMeta):
-    """interface to hashing_codec dependency using in View initialize"""
+class BaseView:
+    dependency_interface = None
 
     @classmethod
-    def __subclasshook__(cls, subclass):
-        return (hasattr(subclass, 'encode') and callable(subclass.encode) or
-                hasattr(subclass, 'compare_hash') and callable(subclass.compare_with_hash) or
-                NotImplemented)
+    def check_dependency_with_interface(cls, *dependency):
+        for dependency, interface in zip(dependency, cls.dependency_interface):
+            if not isinstance(dependency, interface):
+                raise DependencyNotImplementedError(dependency, interface)
 
 
-class ObjectStorage(metaclass=ABCMeta):
-    """interface to object_storage dependency using in View initialize"""
-
-    @classmethod
-    def __subclasshook__(cls, subclass):
-        return (hasattr(subclass, 'put_object') and callable(subclass.put_object) or
-                NotImplemented)
-
-
-class StudentBasicSignup(mixins.CreateModelMixin,
+class StudentBasicSignup(BaseView,
+                         mixins.CreateModelMixin,
                          generics.GenericAPIView):
     """handle basic sign up of student with create generic api"""
+
     queryset = Students.objects.all()
     serializer_class = StudentsSerializer
+    dependency_interface = (interfaces.HashingCodec, interfaces.ObjectStorage)
 
     @classmethod
     def as_view(cls, hashing_codec, object_storage, **initkwargs):
-        for dependency, interface in (
-                (hashing_codec, HashingCodec),
-                (object_storage, ObjectStorage),
-        ):
-            if not isinstance(dependency, interface):
-                raise DependencyNotImplementedError(dependency, interface)
+        cls.check_dependency_with_interface(hashing_codec, object_storage)
 
         cls.hashing_codec = hashing_codec
         cls.object_storage = object_storage
@@ -54,7 +45,7 @@ class StudentBasicSignup(mixins.CreateModelMixin,
         return super(StudentBasicSignup, cls).as_view(**initkwargs)
 
     @transaction.atomic
-    def post(self, request, *args, **kwargs):
+    def post(self, request: Request, *args, **kwargs):
         req_serializer = requests.StudentBasicSignupRequest.POST(data=request.data)
         if not req_serializer.is_valid():
             raise RequestInvalidError(req_serializer.errors)
@@ -77,7 +68,7 @@ class StudentBasicSignup(mixins.CreateModelMixin,
 
         for error in validate_errors.pop('phone_number', default=()):
             if (code := error.code) == 'unique':
-                return Response(status=409, code=-101, msg='duplicate phone number')
+                return Response(status=409, code=-102, msg='duplicate phone number')
             else:
                 raise UnexpectedValidateError('phone_number', validate_errors)
 
@@ -103,7 +94,10 @@ class StudentBasicSignup(mixins.CreateModelMixin,
 
         transaction.savepoint_commit(tx)
 
-        return Response(status=201, msg="succeed to create new student with basic sign up")
+        return Response(status=201, msg="succeed to create new student with basic signup", data={
+            'student': student_serializer.validated_data,
+        })
+
 
 
 def contain_code_to_error_string(detail_errors: Dict[str, List[ErrorDetail]]) -> Dict[str, List[ErrorDetail]]:
