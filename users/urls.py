@@ -19,7 +19,12 @@ urlpatterns = [
         jwt_codec=pyjwt_codec,
     ), name='student-basic-login'),
 
-    path('students/uuid/<str:student_uuid>', views.StudentDetailView.as_view(
+    path('students/uuid/<str:student_uuid>', views.StudentDetail.as_view(
         jwt_codec=pyjwt_codec,
-    ), name='student-detail-with-student-uuid'),
+    ), name='student-detail-with-uuid'),
+
+    path('students/uuid/<str:student_uuid>/password', views.StudentDetailPassword.as_view(
+        hashing_codec=bcrypt_codec,
+        jwt_codec=pyjwt_codec,
+    ), name='student-detail-with-uuid-password'),
 ]
