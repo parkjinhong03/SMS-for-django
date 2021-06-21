@@ -10,6 +10,7 @@ from rest_framework.request import Request
 from . import requests, interfaces
 from .models import Students
 from .serializers import StudentsSerializer
+from .permissions import IsAuthenticated
 from app.responses import Response
 from app.exceptions import (
     DependencyNotImplementedError, UnexpectedValidateError, RequestInvalidError, UnexpectedError
@@ -154,6 +155,23 @@ class StudentDetailView(BaseView,
         cls.jwt_codec = jwt_codec
 
         return super(StudentDetailView, cls).as_view(**initkwargs)
+
+    def get(self, request: Request, student_uuid: str, *args, **kwargs):
+        if request.token_payload['uuid'] != student_uuid:
+            return Response(status=403, msg='you cannot access this resource with that token')
+
+        try:
+            student = Students.objects.get(uuid=student_uuid)
+        except Students.DoesNotExist:
+            return Response(status=404, msg='student with that uuid is not exist')
+        except Exception as e:
+            raise UnexpectedError(e, 'unexpected error occurs while getting student with student uuid')
+
+        student_data = StudentsSerializer(student).data
+        student_data.pop('student_id')
+        student_data.pop('student_pw')
+
+        return Response(status=200, msg='succeed to get student inform with student uuid', data=student_data)
 
 
 def contain_code_to_error_string(detail_errors: Dict[str, List[ErrorDetail]]) -> Dict[str, List[ErrorDetail]]:
