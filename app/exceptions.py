@@ -1,7 +1,7 @@
 from typing import List, Dict, Any
 from rest_framework.views import exception_handler
 from rest_framework.status import (
-    HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR
+    HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED, HTTP_500_INTERNAL_SERVER_ERROR
 )
 from rest_framework.exceptions import ErrorDetail
 from app.responses import Response
@@ -72,6 +72,17 @@ class UnexpectedError(CustomHttpException):
             'detail': f'unexpected error occurs{f" ({self.detail})" if self.detail else ""}',
             'error': str(self.error),
         }
+
+
+class NotAuthenticatedError(CustomHttpException):
+    """represent exception about not authenticated error inheriting CustomHttpException"""
+
+    def __init__(self, detail: str = '', status: int = HTTP_401_UNAUTHORIZED, code: int = 0):
+        super(NotAuthenticatedError, self).__init__(status, code)
+        self.detail = detail
+
+    def get_message(self) -> Any:
+        return f'not authenticated (detail: {self.detail})'
 
 
 class DependencyNotImplementedError(Exception):
