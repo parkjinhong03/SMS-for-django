@@ -41,7 +41,7 @@ class RequestInvalidError(CustomHttpException):
     def get_message(self) -> Any:
         return {
             'detail': 'request data is invalid',
-            **self.validate_errors
+            **self.validate_errors,
         }
 
 
@@ -56,7 +56,21 @@ class UnexpectedValidateError(CustomHttpException):
     def get_message(self) -> Any:
         return {
             'detail': f'unexpected validate error of {self.invalid_field}',
-            **self.validate_errors
+            **self.validate_errors,
+        }
+
+
+class UnexpectedError(CustomHttpException):
+    """represent exception about unexpected error inheriting CustomHttpException"""
+
+    def __init__(self, error: Exception, detail: str = '', status: int = HTTP_500_INTERNAL_SERVER_ERROR, code: int = 0):
+        super(UnexpectedError, self).__init__(status, code)
+        self.error, self.detail = error, detail
+
+    def get_message(self) -> Any:
+        return {
+            'detail': f'unexpected error occurs{f" ({self.detail})" if self.detail else ""}',
+            'error': str(self.error),
         }
 
 
