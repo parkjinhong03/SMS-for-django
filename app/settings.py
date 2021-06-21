@@ -168,6 +168,7 @@ APPEND_SLASH = False
 # AUTOCOMMIT = False -> django model autocommit을 비활성화하고, tx을 실행하지 않아도 DB 수행 결과가 자동으로 commit되지 않음.
 # AUTOCOMMIT = False
 
+JWT_SECRET_KEY = env('SMS_FOR_DJANGO_JWT_SECRET_KEY')
 AWS_S3_ID = env('SMS_FOR_DJANGO_AWS_S3_ID')
 AWS_S3_KEY = env('SMS_FOR_DJANGO_AWS_S3_KEY')
 AWS_S3_BUCKET = env('SMS_FOR_DJANGO_AWS_S3_BUCKET')
