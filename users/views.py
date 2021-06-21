@@ -1,6 +1,7 @@
 from abc import ABCMeta
 from typing import List, Dict
 
+from django.db import transaction
 from rest_framework import generics, mixins
 from rest_framework.exceptions import ErrorDetail
 
@@ -9,7 +10,7 @@ from .models import Students
 from .serializers import StudentsSerializer
 from app.responses import Response
 from app.exceptions import (
-    DependencyNotImplementedError, UnexpectedValidateError, RequestInvalidError
+    DependencyNotImplementedError, UnexpectedValidateError, RequestInvalidError, UnexpectedError
 )
 
 
@@ -18,7 +19,7 @@ class HashingCodec(metaclass=ABCMeta):
 
     @classmethod
     def __subclasshook__(cls, subclass):
-        return (hasattr(subclass, 'encode') and callable(subclass.generate_hash_value) or
+        return (hasattr(subclass, 'encode') and callable(subclass.encode) or
                 hasattr(subclass, 'compare_hash') and callable(subclass.compare_with_hash) or
                 NotImplemented)
 
@@ -52,6 +53,7 @@ class StudentBasicSignup(mixins.CreateModelMixin,
 
         return super(StudentBasicSignup, cls).as_view(**initkwargs)
 
+    @transaction.atomic
     def post(self, request, *args, **kwargs):
         req_serializer = requests.StudentBasicSignupRequest.POST(data=request.data)
         if not req_serializer.is_valid():
@@ -89,6 +91,15 @@ class StudentBasicSignup(mixins.CreateModelMixin,
         except Exception as e:
             transaction.savepoint_rollback(tx)
             raise UnexpectedError(e, 'unable to create new student')
+
+        try:
+            self.object_storage.put_object(request.FILES['profile'], data['profile_uri_path'])
+        except KeyError as e:
+            if (e.args[0] if len(e.args) > 0 else '') not in ('profile', 'profile_uri_path'):
+                raise UnexpectedError(e, 'unable to upload profile to file storage with KeyError')
+        except Exception as e:
+            transaction.savepoint_rollback(tx)
+            raise UnexpectedError(e, 'unable to upload profile to file storage')
 
         transaction.savepoint_commit(tx)
 
