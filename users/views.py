@@ -17,10 +17,12 @@ from app.exceptions import (
 
 
 class BaseView:
-    dependency_interface = None
+    dependency_interface = ()
 
     @classmethod
     def check_dependency_with_interface(cls, *dependency):
+        dependency = dependency if dependency else ()
+
         for dependency, interface in zip(dependency, cls.dependency_interface):
             if not isinstance(dependency, interface):
                 raise DependencyNotImplementedError(dependency, interface)
