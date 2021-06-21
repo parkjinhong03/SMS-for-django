@@ -13,7 +13,7 @@ class PyJWTCodec:
             encode_algorithm = self.encode_algorithm
         return jwt.encode(payload=payload, key=key, algorithm=encode_algorithm)
 
-    def decode(self, _jwt: str, key: str = "", decode_algorithm: List[str] = None):
+    def decode(self, _jwt: str, key: str, decode_algorithm: List[str] = None):
         if decode_algorithm is None:
             decode_algorithm = self.decode_algorithms
         return jwt.decode(jwt=_jwt, key=key, algorithms=decode_algorithm)
