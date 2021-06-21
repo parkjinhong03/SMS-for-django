@@ -18,8 +18,8 @@ class HashingCodec(metaclass=ABCMeta):
 
     @classmethod
     def __subclasshook__(cls, subclass):
-        return (hasattr(subclass, 'hashpw') and callable(subclass.hashpw) or
-                hasattr(subclass, 'checkpw') and callable(subclass.checkpw) or
+        return (hasattr(subclass, 'encode') and callable(subclass.generate_hash_value) or
+                hasattr(subclass, 'compare_hash') and callable(subclass.compare_with_hash) or
                 NotImplemented)
 
 
@@ -48,7 +48,7 @@ class StudentBasicSignup(mixins.CreateModelMixin,
 
         data = req_serializer.data
         data['uuid'] = Students.get_available_uuid()
-        data['student_pw'] = self.hashing_codec.hashpw(data['student_pw'])
+        data['student_pw'] = self.hashing_codec.encode(data['student_pw'])
 
         if 'profile' in request.FILES and (profile := request.FILES['profile']):
             data['profile_uri_path'] = Students.get_profile_uri_path(data['uuid'])
