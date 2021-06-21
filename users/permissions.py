@@ -6,7 +6,7 @@ from app.exceptions import UnexpectedError, NotAuthenticatedError
 
 class IsAuthenticated(permissions.BasePermission):
     """custom permission that check if token with uuid payload is exist in authorization"""
-    
+
     def has_permission(self, request, view):
         if (jwt_codec := getattr(view, 'jwt_codec', None)) is None:
             raise UnexpectedError(AttributeError('view doesn\'t have jwt_codec attribute'), detail='in has_permission')

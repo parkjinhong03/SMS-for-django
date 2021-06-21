@@ -141,8 +141,8 @@ class StudentBasicLogin(BaseView,
         })
 
 
-class StudentDetailView(BaseView,
-                        APIView):
+class StudentDetail(BaseView,
+                    APIView):
     """handle about student detail logic (ex, get & update & delete ...)"""
 
     dependency_interface = (interfaces.JWTCodec, )
@@ -154,7 +154,7 @@ class StudentDetailView(BaseView,
 
         cls.jwt_codec = jwt_codec
 
-        return super(StudentDetailView, cls).as_view(**initkwargs)
+        return super(StudentDetail, cls).as_view(**initkwargs)
 
     def get(self, request: Request, student_uuid: str, *args, **kwargs):
         if request.token_payload['uuid'] != student_uuid:
@@ -172,6 +172,23 @@ class StudentDetailView(BaseView,
         student_data.pop('student_pw')
 
         return Response(status=200, msg='succeed to get student inform with student uuid', data=student_data)
+
+
+class StudentDetailPassword(BaseView,
+                            APIView):
+    """handle about student detail password logic"""
+
+    dependency_interface = (interfaces.HashingCodec, interfaces.JWTCodec)
+    permission_classes = [IsAuthenticated]
+
+    @classmethod
+    def as_view(cls, hashing_codec, jwt_codec, **initkwargs):
+        cls.check_dependency_with_interface(hashing_codec, jwt_codec)
+
+        cls.hashing_codec = hashing_codec
+        cls.jwt_codec = jwt_codec
+
+        return super(StudentDetailPassword, cls).as_view(**initkwargs)
 
 
 def contain_code_to_error_string(detail_errors: Dict[str, List[ErrorDetail]]) -> Dict[str, List[ErrorDetail]]:
