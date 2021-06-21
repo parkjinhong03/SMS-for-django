@@ -164,3 +164,10 @@ STATICFILES_FINDERS = [
 # APPEND_SLASH = True -> url이 /로 끝나지 않고 모든 URLconf와 매칭되지 않는 경우, 끝에 /를 붙힌 후 리다이렉 함. (데이터 분실 위험 존재)
 # CommonMiddleware라는 middleware가 설치되어있을 때만 사용된다 함.
 APPEND_SLASH = False
+
+# AUTOCOMMIT = False -> django model autocommit을 비활성화하고, tx을 실행하지 않아도 DB 수행 결과가 자동으로 commit되지 않음.
+# AUTOCOMMIT = False
+
+AWS_S3_ID = env('SMS_FOR_DJANGO_AWS_S3_ID')
+AWS_S3_KEY = env('SMS_FOR_DJANGO_AWS_S3_KEY')
+AWS_S3_BUCKET = env('SMS_FOR_DJANGO_AWS_S3_BUCKET')
