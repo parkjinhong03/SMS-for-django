@@ -187,6 +187,34 @@ class StudentDetailPassword(BaseView,
 
         return super(StudentDetailPassword, cls).as_view(**initkwargs)
 
+    @transaction.atomic
+    def put(self, request, student_uuid: str, *args, **kwargs):
+        req_serializer = requests.StudentDetailPassword.PUT(data=request.data)
+        if not req_serializer.is_valid():
+            raise RequestInvalidError(req_serializer.errors)
+        data = req_serializer.data
+
+        try:
+            student = Students.objects.get(uuid=student_uuid)
+        except Students.DoesNotExist:
+            return Response(status=404, msg='student with that uuid is not exist')
+        except Exception as e:
+            raise UnexpectedError(e, 'unexpected error occurs while getting student with student uuid')
+
+        if not self.hashing_codec.compare_hash(data['current_pw'], student.student_pw):
+            return Response(status=409, code=-121, msg='incorrect current pw')
+        student.student_pw = self.hashing_codec.encode(data['revision_pw'])
+
+        tx = transaction.savepoint()
+        try:
+            student.save()
+        except Exception as e:
+            transaction.savepoint_rollback(tx)
+            raise UnexpectedError(e, 'unable to update student inform')
+        transaction.savepoint_commit(tx)
+
+        return Response(status=200, msg='succeed to change student account password')
+
 
 def contain_code_to_error_string(detail_errors: Dict[str, List[ErrorDetail]]) -> Dict[str, List[ErrorDetail]]:
     for key, errors in detail_errors.items():
