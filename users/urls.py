@@ -3,19 +3,23 @@ from . import views
 from codec import hash, jwt
 from storage import s3
 
-hashing_codec = hash.BcryptHashingCodec()
-object_storage = s3.S3Storage()
-jwt_codec = jwt.PyJWTCodec()
+bcrypt_codec = hash.BcryptHashingCodec()
+s3_storage = s3.S3Storage()
+pyjwt_codec = jwt.PyJWTCodec()
 
 app_name = 'users'
 urlpatterns = [
     path('students', views.StudentBasicSignup.as_view(
-        hashing_codec=hashing_codec,
-        object_storage=object_storage,
+        hashing_codec=bcrypt_codec,
+        object_storage=s3_storage,
     ), name='student-basic-sign-up'),
 
     path('login/students', views.StudentBasicLogin.as_view(
-        hashing_codec=hashing_codec,
-        jwt_codec=jwt_codec,
-    ), name='student-basic-login')
+        hashing_codec=bcrypt_codec,
+        jwt_codec=pyjwt_codec,
+    ), name='student-basic-login'),
+
+    path('students/uuid/<str:student_uuid>', views.StudentDetailView.as_view(
+        jwt_codec=pyjwt_codec,
+    ), name='student-detail-with-student-uuid'),
 ]
