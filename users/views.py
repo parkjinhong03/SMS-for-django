@@ -23,6 +23,15 @@ class HashingCodec(metaclass=ABCMeta):
                 NotImplemented)
 
 
+class ObjectStorage(metaclass=ABCMeta):
+    """interface to object_storage dependency using in View initialize"""
+
+    @classmethod
+    def __subclasshook__(cls, subclass):
+        return (hasattr(subclass, 'put_object') and callable(subclass.put_object) or
+                NotImplemented)
+
+
 class StudentBasicSignup(mixins.CreateModelMixin,
                          generics.GenericAPIView):
     """handle basic sign up of student with create generic api"""
@@ -30,14 +39,16 @@ class StudentBasicSignup(mixins.CreateModelMixin,
     serializer_class = StudentsSerializer
 
     @classmethod
-    def as_view(cls, hashing_codec, **initkwargs):
+    def as_view(cls, hashing_codec, object_storage, **initkwargs):
         for dependency, interface in (
                 (hashing_codec, HashingCodec),
+                (object_storage, ObjectStorage),
         ):
             if not isinstance(dependency, interface):
                 raise DependencyNotImplementedError(dependency, interface)
 
         cls.hashing_codec = hashing_codec
+        cls.object_storage = object_storage
 
         return super(StudentBasicSignup, cls).as_view(**initkwargs)
 
