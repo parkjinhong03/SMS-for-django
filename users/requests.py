@@ -43,3 +43,11 @@ class StudentBasicLoginRequest:
     class POST(Validator, serializers.Serializer):
         student_id = serializers.CharField(required=True, max_length=20)
         student_pw = serializers.CharField(required=True, max_length=20)
+
+
+class StudentDetailPassword:
+    """serializer to validate request data used in StudentDetailPassword view"""
+
+    class PUT(Validator, serializers.Serializer):
+        current_pw = serializers.CharField(required=True)
+        revision_pw = serializers.CharField(required=True)
