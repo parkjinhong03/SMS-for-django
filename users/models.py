@@ -74,7 +74,7 @@ class Students(models.Model):
     ])
 
     # path value in profile uri of student profile (postgresql -> text NOT NULL UNIQUE)
-    profile_uri_path = models.TextField(unique=True)
+    profile_uri_path = models.TextField(unique=True, null=True)
 
     class Meta:
         ordering = ['uuid']
