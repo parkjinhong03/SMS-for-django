@@ -140,6 +140,22 @@ class StudentBasicLogin(BaseView,
         })
 
 
+class StudentDetailView(BaseView,
+                        APIView):
+    """handle about student detail logic (ex, get & update & delete ...)"""
+
+    dependency_interface = (interfaces.JWTCodec, )
+    permission_classes = [IsAuthenticated]
+
+    @classmethod
+    def as_view(cls, jwt_codec, **initkwargs):
+        cls.check_dependency_with_interface(jwt_codec)
+
+        cls.jwt_codec = jwt_codec
+
+        return super(StudentDetailView, cls).as_view(**initkwargs)
+
+
 def contain_code_to_error_string(detail_errors: Dict[str, List[ErrorDetail]]) -> Dict[str, List[ErrorDetail]]:
     for key, errors in detail_errors.items():
         for i, error in enumerate(errors):
