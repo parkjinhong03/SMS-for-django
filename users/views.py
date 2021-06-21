@@ -99,6 +99,46 @@ class StudentBasicSignup(BaseView,
         })
 
 
+class StudentBasicLogin(BaseView,
+                        APIView):
+    """handle basic login of student account with API View"""
+
+    dependency_interface = (interfaces.HashingCodec, interfaces.JWTCodec)
+
+    @classmethod
+    def as_view(cls, hashing_codec, jwt_codec, **initkwargs):
+        cls.check_dependency_with_interface(hashing_codec, jwt_codec)
+
+        cls.hashing_codec = hashing_codec
+        cls.jwt_codec = jwt_codec
+
+        return super(StudentBasicLogin, cls).as_view(**initkwargs)
+
+    def post(self, request: Request, *args, **kwargs):
+        req_serializer = requests.StudentBasicLoginRequest.POST(data=request.data)
+        if not req_serializer.is_valid():
+            raise RequestInvalidError(req_serializer.errors)
+        data = req_serializer.data
+
+        try:
+            student = Students.objects.get(student_id=data['student_id'])
+            if not self.hashing_codec.compare_hash(data['student_pw'], student.student_pw):
+                return Response(status=409, code=-111, msg='incorrect student account id or pw')
+        except Students.DoesNotExist:
+            return Response(status=409, code=-111, msg='incorrect student account id or pw')
+        except Exception as e:
+            raise UnexpectedError(e, 'unexpected error occurs while getting student with student id')
+
+        print(self.jwt_codec.decode(access_token := self.jwt_codec.encode({
+            'uuid': student.uuid,
+            'type': 'access_token',
+        }, 'qwe'), 'qwe'))
+
+        return Response(status=200, msg='succeed to login student account', data={
+            'student_uuid': student.uuid,
+            'access_token': access_token,
+        })
+
 
 def contain_code_to_error_string(detail_errors: Dict[str, List[ErrorDetail]]) -> Dict[str, List[ErrorDetail]]:
     for key, errors in detail_errors.items():
