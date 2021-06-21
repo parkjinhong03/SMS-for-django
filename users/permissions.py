@@ -1,7 +1,7 @@
 from jwt.exceptions import PyJWTError
 from django.conf import settings
 from rest_framework import permissions
-from app.exceptions import UnexpectedError, NotAuthenticatedError
+from app.exceptions import UnexpectedError, NotAuthenticatedError, ForbiddenError
 
 
 class IsAuthenticated(permissions.BasePermission):
@@ -32,3 +32,15 @@ class IsAuthenticated(permissions.BasePermission):
             raise NotAuthenticatedError('invalid payload value in token', code=-15)
 
         return True
+
+
+class IsUUIDOwner(permissions.BasePermission):
+    """custom permission that check if this token is owner of this request"""
+
+    def has_permission(self, request, view):
+        try:
+            if request.token_payload['uuid'] == view.kwargs['student_uuid']:
+                return True
+            raise ForbiddenError(detail='you cannot access with that uuid in token')
+        except (AttributeError, KeyError) as e:
+            raise UnexpectedError(e, detail=f'error occurs while checking uuid owner permission')
