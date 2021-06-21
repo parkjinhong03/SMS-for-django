@@ -1,7 +1,7 @@
-from abc import ABCMeta
 from typing import List, Dict
 
 from django.db import transaction
+from django.conf import settings
 from rest_framework import generics, mixins
 from rest_framework.exceptions import ErrorDetail
 from rest_framework.views import APIView
@@ -129,14 +129,12 @@ class StudentBasicLogin(BaseView,
         except Exception as e:
             raise UnexpectedError(e, 'unexpected error occurs while getting student with student id')
 
-        print(self.jwt_codec.decode(access_token := self.jwt_codec.encode({
-            'uuid': student.uuid,
-            'type': 'access_token',
-        }, 'qwe'), 'qwe'))
-
         return Response(status=200, msg='succeed to login student account', data={
             'student_uuid': student.uuid,
-            'access_token': access_token,
+            'access_token': self.jwt_codec.encode({
+                'uuid': student.uuid,
+                'type': 'access_token',
+            }, settings.JWT_SECRET_KEY),
         })
 
 
