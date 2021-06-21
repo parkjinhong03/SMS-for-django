@@ -68,16 +68,29 @@ class StudentBasicSignup(mixins.CreateModelMixin,
         validate_errors = contain_code_to_error_string(student_serializer.errors)
 
         for error in validate_errors.pop('student_id', default=()):
-            if error.code == 'unique1':
+            if (code := error.code) == 'unique':
                 return Response(status=409, code=-101, msg='duplicate student id')
             else:
                 raise UnexpectedValidateError('student_id', validate_errors)
 
         for error in validate_errors.pop('phone_number', default=()):
-            if error.code == 'unique1':
+            if (code := error.code) == 'unique':
                 return Response(status=409, code=-101, msg='duplicate phone number')
             else:
                 raise UnexpectedValidateError('phone_number', validate_errors)
+
+        if validate_errors:
+            raise UnexpectedValidateError('unexpected fields', validate_errors)
+
+        tx = transaction.savepoint()
+
+        try:
+            self.perform_create(student_serializer.save())
+        except Exception as e:
+            transaction.savepoint_rollback(tx)
+            raise UnexpectedError(e, 'unable to create new student')
+
+        transaction.savepoint_commit(tx)
 
         return Response(status=201, msg="succeed to create new student with basic sign up")
 
