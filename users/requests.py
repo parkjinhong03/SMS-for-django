@@ -35,3 +35,11 @@ class StudentBasicSignupRequest:
                 })
 
             return attrs
+
+
+class StudentBasicLoginRequest:
+    """serializer to validate request data used in StudentBasicSignup view"""
+
+    class POST(Validator, serializers.Serializer):
+        student_id = serializers.CharField(required=True, max_length=20)
+        student_pw = serializers.CharField(required=True, max_length=20)
