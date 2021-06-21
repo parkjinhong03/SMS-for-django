@@ -25,4 +25,4 @@ urlpatterns = [
     path('users/', include('users.urls')),
 ]
 
-urlpatterns = format_suffix_patterns(urlpatterns, suffix_required=True, allowed=['json', 'html'])
+urlpatterns = format_suffix_patterns(urlpatterns, suffix_required=True, allowed=['json', 'api'])
