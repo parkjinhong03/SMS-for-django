@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'outings.apps.OutingsConfig',
     'postgres_composite_types',
+    'django.contrib.gis',  # !! 'brew install postgis' is required !! & !! CREATE EXTENSION postgis with SUPERUSER !!
 ]
 
 MIDDLEWARE = [
@@ -101,7 +102,7 @@ WSGI_APPLICATION = 'app.wsgi.application'
 DATABASES = {
     'default': {
         'NAME': env('SMS_FOR_DJANGO_POSTGRESQL_NAME'),
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'USER': env('SMS_FOR_DJANGO_POSTGRESQL_USER'),
         'PASSWORD': env('SMS_FOR_DJANGO_POSTGRESQL_PASSWORD'),
         'HOST': '127.0.0.1',
