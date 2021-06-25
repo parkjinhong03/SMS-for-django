@@ -35,7 +35,7 @@ class OutingCards(models.Model):
         validators.RegexValidator(regex='^outing_card-\\d{12}$')
     ])
     student_uuid = models.ForeignKey(to='users.Students', on_delete=models.CASCADE, related_name='apply_outings')
-    progress = models.SmallIntegerField()
+    progress = models.SmallIntegerField(choices=[(p, p.value) for p in Progresses], default=Progresses.APPLIED)
     accepted_teacher = models.ForeignKey(to='users.Teachers', on_delete=models.CASCADE,
                                          related_name='accept_outings', null=True)
     is_emergency = models.BooleanField(default=False)
