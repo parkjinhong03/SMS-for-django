@@ -28,52 +28,31 @@ class Students(models.Model):
         CREATE TYPE "student_number" AS ("grade" smallint, "group" smallint, "number" smallint);
         """
 
-        # grade(학년) value of student number type (postgresql -> "grade" smallint)
         grade = models.SmallIntegerField(null=True, validators=[
-            validators.MinValueValidator(limit_value=1), validators.MaxValueValidator(limit_value=3),  # between 1~3
+            validators.MinValueValidator(limit_value=1), validators.MaxValueValidator(limit_value=3),
         ])
-        # group(반) value of student number type (postgresql -> "group" smallint)
         group = models.SmallIntegerField(null=True, validators=[
-            validators.MinValueValidator(limit_value=1), validators.MaxValueValidator(limit_value=4),  # between 1~4
+            validators.MinValueValidator(limit_value=1), validators.MaxValueValidator(limit_value=4),
         ])
-        # number(번호) value of student number type (postgresql -> "number" smallint)
         number = models.SmallIntegerField(null=True, validators=[
-            validators.MinValueValidator(limit_value=1), validators.MaxValueValidator(limit_value=21),  # between 1~21
+            validators.MinValueValidator(limit_value=1), validators.MaxValueValidator(limit_value=21),
         ])
 
         class Meta:
-            # set type name of StudentNumber in postgresql
             db_type = 'student_number'
 
-    # create time which is set current time when add this instance
     created_at = models.DateTimeField(auto_now_add=True, blank=True)
-
-    # update time which is set current time when change this instance
     updated_at = models.DateTimeField(auto_now=True, blank=True)
-
-    # primary key of Students model (postgresql -> "uuid" varchar(20) NOT NULL PRIMARY KEY))
     uuid = models.CharField(primary_key=True, max_length=20, validators=[
-        validators.RegexValidator(regex='^student-\\d{12}$'),  # check uuid value with regular expression
+        validators.RegexValidator(regex='^student-\\d{12}$'),
     ])
-
-    # id value of student account (postgresql -> varchar(20) NOT NULL UNIQUE)
     student_id = models.CharField(max_length=20, unique=True)
-
-    # hashed password value of student account (postgresql -> text NOT NULL)
     student_pw = models.TextField()
-
-    # student number value contains grade, group, number of student (postgresql -> student_number NULL)
     student_number = StudentNumber.Field(blank=True)
-
-    # name value of student inform (postgresql -> varchar(10) NOT NULL)
     name = models.CharField(max_length=10)
-
-    # phone number value of student inform (postgresql -> varchar(11) NOT NULL UNIQUE)
     phone_number = models.CharField(max_length=11, unique=True, validators=[
-        validators.RegexValidator(regex='^\\d{3}\\d{3,4}\\d{4}$')  # check phone number value with regular expression
+        validators.RegexValidator(regex='^\\d{3}\\d{3,4}\\d{4}$')
     ])
-
-    # path value in profile uri of student profile (postgresql -> text NOT NULL UNIQUE)
     profile_uri_path = models.TextField(unique=True, null=True)
 
     class Meta:
@@ -133,44 +112,25 @@ class Teachers(models.Model):
         CREATE TYPE "teacher_group" AS ("grade" smallint, "group" smallint);
         """
 
-        # grade(학년) value of teacher group type
         grade = models.SmallIntegerField(null=True, validators=[
             validators.MinValueValidator(1), validators.MaxValueValidator(3)
         ])
-
-        # group(반) value of teacher group type
         group = models.SmallIntegerField(null=True, validators=[
             validators.MinValueValidator(1), validators.MaxValueValidator(3)
         ])
 
         class Meta:
-            # set type name of TeacherGroup in postgresql
             db_type = 'teacher_group'
 
-    # create time which is set current time when add this instance
     created_at = models.DateTimeField(auto_now_add=True, blank=True)
-
-    # update time which is set current time when change this instance
     updated_at = models.DateTimeField(auto_now=True, blank=True)
-
-    # primary key of Teachers model
     uuid = models.CharField(primary_key=True, max_length=20, validators=[
-        validators.RegexValidator(regex='^teacher-\\d{12}$'),  # check uuid value with regular expression
+        validators.RegexValidator(regex='^teacher-\\d{12}$'),
     ])
-
-    # id value of teacher account
     teacher_id = models.CharField(max_length=20, unique=True)
-
-    # hashed password value of teacher account
     teacher_pw = models.TextField()
-
-    # teacher group value contains grade, group teacher
     teacher_group = TeacherGroup.Field(blank=True)
-
-    # name value of teacher inform
     name = models.CharField(max_length=10)
-
-    # phone number value of teacher inform
     phone_number = models.CharField(max_length=11, unique=True, validators=[
-        validators.RegexValidator(regex='^\\d{3}\\d{3,4}\\d{4}$')  # check phone number value with regular expression
+        validators.RegexValidator(regex='^\\d{3}\\d{3,4}\\d{4}$')
     ])
