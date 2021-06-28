@@ -1,3 +1,4 @@
+import datetime
 from typing import List, Dict
 
 from django.db import transaction
@@ -123,10 +124,10 @@ class StudentBasicLogin(Base,
 
         return Response(status=200, msg='succeed to login student account', data={
             'student_uuid': student.uuid,
-            'access_token': self.jwt_codec.encode({
+            'access_token': self.jwt_codec.encode(payload={
                 'uuid': student.uuid,
                 'type': 'access_token',
-            }, settings.JWT_SECRET_KEY),
+            }, key=settings.JWT_SECRET_KEY, expired_at=datetime.datetime.utcnow() + datetime.timedelta(weeks=2)),
         })
 
 
