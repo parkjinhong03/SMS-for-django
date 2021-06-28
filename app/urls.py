@@ -23,6 +23,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('users', include('users.urls')),
+    path('outings', include('outings.urls'))
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns, suffix_required=True, allowed=['json', 'api'])
