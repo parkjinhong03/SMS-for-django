@@ -19,7 +19,7 @@ class IsAuthenticated(permissions.BasePermission):
             if _type == 'Bearer':
                 payload = jwt_codec.decode(token, key=settings.JWT_SECRET_KEY)  # raise PyJWTError if invalid token
                 _, _ = payload['uuid'], payload['type']  # raise KeyError if not exist
-                request.token_payload = payload
+                request.uuid = payload['uuid']
             else:
                 raise NotImplementedError  # raise NotImplementedError if unsupported token type
         except ValueError:
@@ -39,7 +39,7 @@ class IsUUIDOwner(permissions.BasePermission):
 
     def has_permission(self, request, view):
         try:
-            if request.token_payload['uuid'] == view.kwargs['student_uuid']:
+            if request.uuid == view.kwargs['student_uuid']:
                 return True
             raise ForbiddenError(detail='you cannot access with that uuid in token')
         except (AttributeError, KeyError) as e:
