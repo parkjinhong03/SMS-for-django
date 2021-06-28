@@ -45,3 +45,19 @@ class OutingCards(models.Model):
     reason = models.CharField(max_length=1000)
     place = models.CharField(max_length=200)
     place_point = gis_model.PointField()
+
+    def save(self, *args, **kwargs):
+        self.uuid = self.uuid if self.uuid else self.get_available_uuid()
+        return super(OutingCards, self).save(*args, **kwargs)
+
+    @classmethod
+    def get_available_uuid(cls) -> str:
+        while OutingCards.objects.filter(uuid=(uuid := cls.generate_random_uuid())):
+            continue
+        return uuid
+
+    @classmethod
+    def generate_random_uuid(cls) -> str:
+        rand = str(random.randint(0, 999999999999))
+        uuid_number = '0' * (12 - len(rand)) + rand
+        return f'outing_card-{uuid_number}'
