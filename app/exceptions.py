@@ -105,3 +105,10 @@ class DependencyNotImplementedError(Exception):
 
     def __str__(self):
         return f'dependency not implemented! dependency: {type(self.dependency)}, interface: {self.interface}'
+
+
+def contain_code_to_error_string(detail_errors: Dict[str, List[ErrorDetail]]) -> Dict[str, List[ErrorDetail]]:
+    for key, errors in detail_errors.items():
+        for i, error in enumerate(errors):
+            detail_errors[key][i] = ErrorDetail(f'{error} (code: {error.code})', error.code)
+    return detail_errors

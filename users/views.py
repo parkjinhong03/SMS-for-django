@@ -1,10 +1,8 @@
 import datetime
-from typing import List, Dict
 
 from django.db import transaction
 from django.conf import settings
 from rest_framework import generics, mixins
-from rest_framework.exceptions import ErrorDetail
 from rest_framework.views import APIView
 from rest_framework.request import Request
 
@@ -14,7 +12,7 @@ from .serializers import StudentsSerializer
 from .permissions import IsAuthenticated, IsUUIDOwner
 from app.responses import Response
 from app.exceptions import (
-    UnexpectedValidateError, RequestInvalidError, UnexpectedError
+    UnexpectedValidateError, RequestInvalidError, UnexpectedError, contain_code_to_error_string
 )
 from app.views import Base
 
@@ -204,10 +202,3 @@ class StudentDetailPassword(Base,
         transaction.savepoint_commit(tx)
 
         return Response(status=200, msg='succeed to change student account password')
-
-
-def contain_code_to_error_string(detail_errors: Dict[str, List[ErrorDetail]]) -> Dict[str, List[ErrorDetail]]:
-    for key, errors in detail_errors.items():
-        for i, error in enumerate(errors):
-            detail_errors[key][i] = ErrorDetail(f'{error} (code: {error.code})', error.code)
-    return detail_errors
