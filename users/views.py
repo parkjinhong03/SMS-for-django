@@ -13,34 +13,23 @@ from .serializers import StudentsSerializer
 from .permissions import IsAuthenticated, IsUUIDOwner
 from app.responses import Response
 from app.exceptions import (
-    DependencyNotImplementedError, UnexpectedValidateError, RequestInvalidError, UnexpectedError
+    UnexpectedValidateError, RequestInvalidError, UnexpectedError
 )
+from app.views import Base
 
 
-class BaseView:
-    dependency_interface = ()
-
-    @classmethod
-    def check_dependency_with_interface(cls, *dependency):
-        dependency = dependency if dependency else ()
-
-        for dependency, interface in zip(dependency, cls.dependency_interface):
-            if not isinstance(dependency, interface):
-                raise DependencyNotImplementedError(dependency, interface)
-
-
-class StudentBasicSignup(BaseView,
+class StudentBasicSignup(Base,
                          mixins.CreateModelMixin,
                          generics.GenericAPIView):
     """handle basic sign up of student with create generic api"""
 
     queryset = Students.objects.all()
     serializer_class = StudentsSerializer
-    dependency_interface = (interfaces.HashingCodec, interfaces.ObjectStorage)
+    dependency_interfaces = (interfaces.HashingCodec, interfaces.ObjectStorage)
 
     @classmethod
     def as_view(cls, hashing_codec, object_storage, **initkwargs):
-        cls.check_dependency_with_interface(hashing_codec, object_storage)
+        cls.dependency_duck_typing(hashing_codec, object_storage)
 
         cls.hashing_codec = hashing_codec
         cls.object_storage = object_storage
@@ -102,15 +91,15 @@ class StudentBasicSignup(BaseView,
         })
 
 
-class StudentBasicLogin(BaseView,
+class StudentBasicLogin(Base,
                         APIView):
     """handle basic login of student account with API View"""
 
-    dependency_interface = (interfaces.HashingCodec, interfaces.JWTCodec)
+    dependency_interfaces = (interfaces.HashingCodec, interfaces.JWTCodec)
 
     @classmethod
     def as_view(cls, hashing_codec, jwt_codec, **initkwargs):
-        cls.check_dependency_with_interface(hashing_codec, jwt_codec)
+        cls.dependency_duck_typing(hashing_codec, jwt_codec)
 
         cls.hashing_codec = hashing_codec
         cls.jwt_codec = jwt_codec
@@ -141,16 +130,16 @@ class StudentBasicLogin(BaseView,
         })
 
 
-class StudentDetail(BaseView,
+class StudentDetail(Base,
                     APIView):
     """handle about student detail logic (ex, get & update & delete ...)"""
 
-    dependency_interface = (interfaces.JWTCodec, )
+    dependency_interfaces = (interfaces.JWTCodec, )
     permission_classes = [IsAuthenticated, IsUUIDOwner]
 
     @classmethod
     def as_view(cls, jwt_codec, **initkwargs):
-        cls.check_dependency_with_interface(jwt_codec)
+        cls.dependency_duck_typing(jwt_codec)
 
         cls.jwt_codec = jwt_codec
 
@@ -171,16 +160,16 @@ class StudentDetail(BaseView,
         return Response(status=200, msg='succeed to get student inform with student uuid', data=student_data)
 
 
-class StudentDetailPassword(BaseView,
+class StudentDetailPassword(Base,
                             APIView):
     """handle about student detail password logic"""
 
-    dependency_interface = (interfaces.HashingCodec, interfaces.JWTCodec)
+    dependency_interfaces = (interfaces.HashingCodec, interfaces.JWTCodec)
     permission_classes = [IsAuthenticated, IsUUIDOwner]
 
     @classmethod
     def as_view(cls, hashing_codec, jwt_codec, **initkwargs):
-        cls.check_dependency_with_interface(hashing_codec, jwt_codec)
+        cls.dependency_duck_typing(hashing_codec, jwt_codec)
 
         cls.hashing_codec = hashing_codec
         cls.jwt_codec = jwt_codec
