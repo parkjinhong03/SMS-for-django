@@ -3,9 +3,9 @@ from . import views
 from codec import hash, jwt
 from storage import s3
 
-bcrypt_codec = hash.BcryptHashingCodec()
-s3_storage = s3.S3Storage()
-pyjwt_codec = jwt.PyJWTCodec()
+bcrypt_codec = hash.BcryptHashingCodec(single=True)
+s3_storage = s3.S3Storage(single=True)
+pyjwt_codec = jwt.PyJWTCodec(single=True)
 
 app_name = 'users'
 urlpatterns = [
