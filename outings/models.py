@@ -1,4 +1,4 @@
-from enum import Enum
+import random
 from django.db import models
 from django.core import validators
 from django.contrib.gis.db import models as gis_model
@@ -10,7 +10,7 @@ class OutingCards(models.Model):
     (SQL in postgresql)
     """
 
-    class Progresses(Enum):
+    class Progresses:
         """
         0 → 외출 신청
         1 → 학부모 승인, -1 → 학부모 거절
@@ -35,7 +35,7 @@ class OutingCards(models.Model):
         validators.RegexValidator(regex='^outing_card-\\d{12}$')
     ])
     student_uuid = models.ForeignKey(to='users.Students', on_delete=models.CASCADE, related_name='apply_outings')
-    progress = models.SmallIntegerField(choices=[(p, p.value) for p in Progresses], default=Progresses.APPLIED)
+    progress = models.SmallIntegerField(default=Progresses.APPLIED)
     accepted_teacher = models.ForeignKey(to='users.Teachers', on_delete=models.CASCADE,
                                          related_name='accept_outings', null=True)
     is_emergency = models.BooleanField(default=False)
