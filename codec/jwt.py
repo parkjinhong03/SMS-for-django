@@ -1,8 +1,9 @@
 import jwt
 from typing import Tuple, Dict, Any, List
+from _meta.singleton import Singleton
 
 
-class PyJWTCodec:
+class PyJWTCodec(metaclass=Singleton):
     """jwt codec class that encode & decode token using PyJWT module"""
 
     def __init__(self, encode_algorithm: str = 'HS256', decode_algorithms: Tuple[str] = ('HS256',)):

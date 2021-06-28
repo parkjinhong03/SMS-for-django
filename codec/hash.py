@@ -1,7 +1,8 @@
 import bcrypt
+from _meta.singleton import Singleton
 
 
-class BcryptHashingCodec:
+class BcryptHashingCodec(metaclass=Singleton):
     """class that hash password & compare with hashed using bcrypt algorithm"""
     def __init__(self, encoding='utf8'):
         self.encoding = encoding

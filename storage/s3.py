@@ -1,8 +1,9 @@
 import boto3
 from django.conf import settings
+from _meta.singleton import Singleton
 
 
-class S3Storage:
+class S3Storage(metaclass=Singleton):
     """object storage using AWS S3"""
 
     def __init__(self, access_id: str = settings.AWS_S3_ID, access_key: str = settings.AWS_S3_KEY):
