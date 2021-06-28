@@ -43,4 +43,5 @@ class OutingCards(models.Model):
     end_time = models.DateTimeField()
     arrival_time = models.DateTimeField(null=True)
     reason = models.CharField(max_length=1000)
-    outing_place = gis_model.PointField()
+    place = models.CharField(max_length=200)
+    place_point = gis_model.PointField()
