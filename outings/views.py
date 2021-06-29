@@ -59,3 +59,19 @@ class OutingApplyFromStudent(Base,
         return Response(status=201, msg='succeed to apply new outing from student', data={
             'uuid': outing_card_serializer.validated_data['uuid']
         })
+
+
+class OutingsSearch(Base,
+                    APIView):
+    """handle logic to search outing using elasticsearch with APIView"""
+    dependency_interfaces = (interfaces.JWTCodec, interfaces.ElasticsearchAgency)
+    permission_classes = [permissions.IsAuthenticated]
+
+    @classmethod
+    def as_view(cls, jwt_codec, elasticsearch_agency, **initkwargs):
+        cls.dependency_duck_typing(jwt_codec, elasticsearch_agency)
+
+        cls.jwt_codec = jwt_codec
+        cls.elasticsearch_agency = elasticsearch_agency
+
+        return super(OutingsSearch, cls).as_view(**initkwargs)
