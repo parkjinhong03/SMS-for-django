@@ -9,7 +9,7 @@ from app.exceptions import (
 )
 from app.responses import Response
 from users import permissions
-from . import requests, interfaces
+from . import requests, interfaces, responses
 from .models import OutingCards
 from .serializers import OutingCardsSerializer
 
@@ -75,3 +75,37 @@ class OutingsSearch(Base,
         cls.elasticsearch_agency = elasticsearch_agency
 
         return super(OutingsSearch, cls).as_view(**initkwargs)
+
+    def get(self, request, *args, **kwargs):
+        query = request.GET.get('query', None)
+
+        es_search_query = \
+            {
+                "query": {
+                    "bool": {
+                        "must": [
+                            {
+                                "match": {
+                                    "reason.nori": query,
+                                }
+                            } if query else {}
+                        ] if query else []
+                    }
+                }
+            }
+
+        try:
+            response = self.elasticsearch_agency.search(es_search_query)
+            documents = response['hits']['hits']
+        except Exception as e:
+            raise UnexpectedError(e, 'failed to agent elasticsearch _search command')
+
+        outing_card_uuids = [None] * len(documents)
+        for i, document in enumerate(documents):
+            outing_card_uuids[i] = document['_id']
+        outing_cards = OutingCards.objects.filter(uuid__in=outing_card_uuids)
+
+        return Response(status=200, msg='succeed to search outing card with query', data={
+            'total': len(outing_cards),
+            'outing_cards': responses.OutingsSearch.GET(outing_cards, many=True).data,
+        })
