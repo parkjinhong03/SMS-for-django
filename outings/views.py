@@ -37,7 +37,7 @@ class OutingApplyFromStudent(Base,
         data = req_serializer.validated_data
         data['uuid'] = OutingCards.get_available_uuid()
         data['student_uuid'] = request.uuid
-        data['place_point'] = GEOSGeometry(f'POINT({data.pop("place_x")} {data.pop("place_y")})')
+        data['place_point'] = GEOSGeometry(f'POINT({data.pop("place_lat")} {data.pop("place_lon")})')
 
         (outing_card_serializer := OutingCardsSerializer(data=data)).is_valid()
         validate_errors = contain_code_to_error_string(outing_card_serializer.errors)
