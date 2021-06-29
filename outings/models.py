@@ -8,6 +8,21 @@ class OutingCards(models.Model):
     """Outings model having about outing card value
 
     (SQL in postgresql)
+    CREATE TABLE "outings_outingcards" (
+        "created_at" timestamp with time zone NOT NULL,
+        "updated_at" timestamp with time zone NOT NULL,
+        "uuid" varchar(24) NOT NULL PRIMARY KEY,
+        "progress" smallint NOT NULL,
+        "is_emergency" boolean NOT NULL,
+        "start_time" timestamp with time zone NOT NULL,
+        "end_time" timestamp with time zone NOT NULL,
+        "arrival_time" timestamp with time zone NULL,
+        "reason" varchar(1000) NOT NULL,
+        "place" varchar(200) NOT NULL,
+        "place_point" geometry(POINT,4326) NOT NULL,
+        "accepted_teacher_id" varchar(20) NULL,
+        "student_uuid_id" varchar(20) NOT NULL
+    );
     """
 
     class Progresses:
