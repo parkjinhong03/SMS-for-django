@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from django.contrib.gis.geos import GEOSGeometry
 
 
 class OutingApplyFromStudent:
@@ -12,8 +11,8 @@ class OutingApplyFromStudent:
                                              input_formats=['%Y-%m-%d %H:%M', '%Y-%m-%d'])
         reason = serializers.CharField(required=True, max_length=1000)
         place = serializers.CharField(required=True, max_length=200)
-        place_x = serializers.FloatField(required=True)
-        place_y = serializers.FloatField(required=True)
+        place_lat = serializers.FloatField(required=True, max_value=90, min_value=-90)
+        place_lon = serializers.FloatField(required=True, max_value=180, min_value=-180)
         is_emergency = serializers.BooleanField(default=False)
 
         def validate(self, data):
