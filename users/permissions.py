@@ -8,8 +8,10 @@ class IsAuthenticated(permissions.BasePermission):
     """custom permission that check if token with uuid payload is exist in authorization"""
 
     def has_permission(self, request, view):
-        if (jwt_codec := getattr(view, 'jwt_codec', None)) is None:
-            raise UnexpectedError(AttributeError('view doesn\'t have jwt_codec attribute'), detail='in has_permission')
+        try:
+            jwt_codec = view.jwt_codec
+        except AttributeError as e:
+            raise UnexpectedError(e, detail='view doesn\'t have jwt_codec attribute')
 
         if (author := request.META.get('HTTP_AUTHORIZATION', None)) is None:
             raise NotAuthenticatedError('authorization is not exist in request META', code=-11)
