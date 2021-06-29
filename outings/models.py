@@ -49,10 +49,11 @@ class OutingCards(models.Model):
     uuid = models.CharField(primary_key=True, max_length=24, validators=[
         validators.RegexValidator(regex='^outing_card-\\d{12}$')
     ])
-    student_uuid = models.ForeignKey(to='users.Students', on_delete=models.CASCADE, related_name='apply_outings')
+    student_uuid = models.ForeignKey(to='users.Students', on_delete=models.CASCADE, related_name='apply_outings',
+                                     db_column='student_uuid')
     progress = models.SmallIntegerField(default=Progresses.APPLIED)
     accepted_teacher = models.ForeignKey(to='users.Teachers', on_delete=models.CASCADE,
-                                         related_name='accept_outings', null=True)
+                                         related_name='accept_outings', null=True, db_column='accepted_teacher')
     is_emergency = models.BooleanField(default=False)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
